@@ -25,8 +25,17 @@ def sendAiChat(openrouterApiKey, message):
         }
         ]
     })
-    ).json()
-    return response['choices'][0]['message']['content']
+    )
+    response_json = response.json()
+    try:
+        if response.status_code == 200:
+            return response_json['choices'][0]['message']['content']
+        else:
+            print(response_json)
+            return f"ERROR {response.status_code}"
+    except:
+        print(response_json)
+        return "ERROR"
 
 
 def handle_client(openrouterApiKey, conn, addr):

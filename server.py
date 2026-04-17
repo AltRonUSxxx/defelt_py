@@ -3,6 +3,7 @@ import threading
 import requests
 import json
 import os
+import struct
 from dotenv import load_dotenv
 
 
@@ -25,18 +26,25 @@ def sendAiChat(openrouterApiKey, message):
         }
         ]
     })
-    )
+    , timeout=1000)
     response_json = response.json()
+
     try:
         if response.status_code == 200:
             return response_json['choices'][0]['message']['content']
         else:
+            print("----------------------JSON---------------")
             print(response_json)
+            print("----------------------JSON---------------")
             return f"ERROR {response.status_code}"
     except:
         print(response_json)
         return "ERROR"
 
+def send_message(conn, text):
+    data = text.encode('utf-8')
+    length = struct.pack('!I', len(data))  # 4 байта длины
+    conn.sendall(length + data)
 
 def handle_client(openrouterApiKey, conn, addr):
     print(f"[CONNECTION] {addr} connected")
@@ -52,7 +60,7 @@ def handle_client(openrouterApiKey, conn, addr):
             response = sendAiChat(openrouterApiKey, message)
             print(f"[{addr}] -> Ai: {response}")
 
-            conn.sendall(response.encode('utf-8'))
+            send_message(conn, response)
 
     except Exception as e:
         print(f"[ERROR] {addr}: {e}")

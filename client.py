@@ -1,7 +1,28 @@
 import socket
+import struct
 
 HOST = '127.0.0.1'
 PORT = 2912
+
+def recv_full(sock, n):
+    data = b''
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data += packet
+    return data
+
+
+def receive_message(sock):
+    raw_length = recv_full(sock, 4)
+    if not raw_length:
+        return None
+
+    length = struct.unpack('!I', raw_length)[0]
+    data = recv_full(sock, length)
+
+    return data.decode('utf-8')
 
 def start_client():
     try:
@@ -19,8 +40,8 @@ def start_client():
                 break
             client.sendall(message.encode('utf-8'))
 
-            response = client.recv(1024).decode('utf-8')
-            print(f"[Ai] {response}")
+            response = receive_message(client)
+            print(f"[AI] {response}" )
     except:
         print("unexcepted error")
     finally:

@@ -20,7 +20,7 @@ def start_client():
             client.sendall(message.encode('utf-8'))
 
             response = client.recv(1024).decode('utf-8')
-            print(f"[СЕРВЕР] -> {response}")
+            print(f"[Ai]{response}")
     except:
         print("unexcepted error")
     finally:

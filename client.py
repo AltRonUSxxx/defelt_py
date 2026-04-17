@@ -35,6 +35,7 @@ def start_client():
 
     try:
         while True:
+            print('>', end="")
             message = input()
             if message=="exit":
                 break

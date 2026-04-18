@@ -5,11 +5,11 @@ import json
 import os
 import struct
 from dotenv import load_dotenv
+import sqlite3
 
 
 HOST = '127.0.0.1'
 PORT = 2912
-
 
 def sendAiChat(openrouterApiKey, message):
     response = requests.post(
@@ -48,8 +48,11 @@ def send_message(conn, text):
 
 def handle_client(openrouterApiKey, conn, addr):
     print(f"[CONNECTION] {addr} connected")
+    connect = sqlite3.connect("chat.db")
+    cursor = connect.cursor()
 
     try:
+        
         while True:
             data = conn.recv(1024)
             if not data:
@@ -61,12 +64,18 @@ def handle_client(openrouterApiKey, conn, addr):
             print(f"[{addr}] -> Ai: {response}")
 
             send_message(conn, response)
+            cursor.execute(
+            "INSERT INTO messages (user_text, ai_text, remoteIp) VALUES (?, ?, ?)",
+            (message, response, str(addr))
+            )
 
     except Exception as e:
         print(f"[ERROR] {addr}: {e}")
 
     finally:
+        connect.commit()
         conn.close()
+        connect.close()
         print(f"[CONNECTION] {addr} disconected")
 
 

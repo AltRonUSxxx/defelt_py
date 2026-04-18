@@ -10,14 +10,6 @@ engine = create_engine(
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True)
-    username = Column(String, unique=True)
-
-    messages = relationship("Message", back_populates="user")
-
 class Message(Base):
     __tablename__ = "messages"
 
@@ -25,9 +17,7 @@ class Message(Base):
     user_text = Column(Text)
     ai_text = Column(Text)
     created_at = Column(DateTime, default=datetime.datetime.now)
+    remoteIp = Column(Text)
 
-    user_id = Column(Integer, ForeignKey("users.id"))
-
-    user = relationship("User", back_populates="messages")
 
 Base.metadata.create_all(bind=engine)

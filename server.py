@@ -4,6 +4,7 @@ import requests
 import json
 import os
 import struct
+from datetime import datetime
 from dotenv import load_dotenv
 import sqlite3
 
@@ -65,8 +66,8 @@ def handle_client(openrouterApiKey, conn, addr):
 
             send_message(conn, response)
             cursor.execute(
-            "INSERT INTO messages (user_text, ai_text, remoteIp) VALUES (?, ?, ?)",
-            (message, response, str(addr))
+            "INSERT INTO messages (user_text, ai_text, remoteIp, created_at) VALUES (?, ?, ?, ?)",
+            (message, response, str(addr), datetime.now().isoformat())
             )
 
     except Exception as e:
